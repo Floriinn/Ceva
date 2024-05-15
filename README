@@ -1,0 +1,11 @@
+Tema 4 Pcom
+Surse utilizate:
+https://stackoverflow.com/questions/4654636/how-to-determine-if-a-string-is-a-number-with-c pentru functia de verificat daca un string e numar
+Postman ca sa mai testez cereri sa vad cum sunt
+githubul lui nohman
+Eram deja familiarizat cu procesul de cereri http intrucat am mai lucrat in java cu acestea. Singurul lucru greu a fost sa mai prelucrez string-uri
+si sa am grija sa respect formatul unei cereri de tip html.
+Am decis ca pentru orice request sa verific cookie-ul de login care este numai unul in cadrul acestui proiect pentru ca nu poti fi logat cu 2 conturi
+de odata.
+La requesturile de tip biblioteca am avut grija sa verific tokenul si cazurile particulare.
+Am decis sa folosesc c++ intrucat biblioteca de parsare json parea mai user friendly + asa am fost sfatuit de mai multi studenti.

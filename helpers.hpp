@@ -26,4 +26,6 @@ char *receive_from_server(int sockfd);
 // extracts and returns a JSON from a server response
 char *basic_extract_json_response(char *str);
 
+bool is_number(const std::string& s);
+
 #endif

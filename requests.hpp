@@ -9,6 +9,9 @@ string compute_get_request(char *host, string url, string query_params,
 
 // computes and returns a POST request string (cookies can be NULL if not needed)
 std::string compute_post_request(char *host, std::string url, std::string content_type, std::string body_data,
-                            string cookie, int cookies_count);
+                            string cookie, int cookies_count, string token);
+
+string compute_delete_request(char *host, string url, string query_params,
+                            string cookie, int cookies_count, string token);
 
 #endif

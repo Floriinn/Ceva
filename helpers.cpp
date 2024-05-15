@@ -32,7 +32,11 @@ std::string compute_message(std::string message, std::string line)
     return message;
 }
 
-
+bool is_number(const std::string& s)
+{
+    return !s.empty() && std::find_if(s.begin(), 
+        s.end(), [](unsigned char c) { return !std::isdigit(c); }) == s.end();
+}
 
 
 int open_connection(std::string host_ip, uint16_t portno, int ip_type, int socket_type, int flag)
