@@ -12,6 +12,7 @@
 #include <iostream>
 #include "json.hpp"
 using json = nlohmann::json;
+
 using namespace std;
 
 
@@ -27,12 +28,17 @@ int main(int argc, char *argv[])
     string username;
     string password;
     json post_data;
+    json token;
     umap["register"] = 1;
     umap["login"] = 2;
+    umap["enter_library"] = 3;
+    umap["get_books"] = 4;
     int start;
     int end;
     string linie;
     string cookie;
+    int cookie_count = 0;
+    string token_string;
     while(true) {
         getline(cin, input_line);
         
@@ -48,16 +54,16 @@ int main(int argc, char *argv[])
                     {"username", username},
                     {"password", password},
                     };
-                message = compute_post_request(host, "/api/v1/tema/auth/register", "application/json", post_data.dump(4), NULL, 0);
+                    
+                message = compute_post_request(host, "/api/v1/tema/auth/register", "application/json", post_data.dump(4), cookie, cookie_count);
                 send_to_server(sockfd, message);
-                
                 response = receive_from_server(sockfd);
                 if (response.find("201")!=std::string::npos) {
                     cout << "SUCCES, te fut.";
                 } else {
                     cout << "EROARE, nu te mai fut.";
                 }
-                // cout << response;
+                cout << response;
                 close_connection(sockfd);
                 break;
             case 2:
@@ -71,24 +77,55 @@ int main(int argc, char *argv[])
                     {"username", username},
                     {"password", password},
                     };
-                message = compute_post_request(host, "/api/v1/tema/auth/login", "application/json", post_data.dump(4), NULL, 0);
+                message = compute_post_request(host, "/api/v1/tema/auth/login", "application/json", post_data.dump(4), cookie, 0);
                 send_to_server(sockfd, message);
                 
                 response = receive_from_server(sockfd);
-                if (response.find("200")!=std::string::npos) {
-                    cout << "SUCCES, te fut.\n";
+                if (response.substr(0, 256).find("200")!=std::string::npos) {
+                    cout << "SUCCESS, te fut.\n";
                 } else {
+                    
                     cout << "EROARE, nu te mai fut.\n";
+                    continue;
                 }
+                cout << response;
                 start = response.find("Cookie:");
-                end = response.substr(start,LINELEN).find("\r\n");
+                end = response.substr(start,LINELEN).find("Date");
                 // cout << response.substr(start, end) << endl << endl;
                 // Cookie: = 8
-                cookie = response.substr(start + 8, end);
-                cout << cookie << endl << endl;
-                cout << response;
+                cookie = response.substr(start + 8, end - 8);
+                cookie_count ++;
+                // cout << cookie << endl << endl;
+                
                 close_connection(sockfd);
                 break;
+            case 3:
+                {
+                    // enter_library
+                sockfd = open_connection(host, port, AF_INET, SOCK_STREAM, 0);
+                message = compute_get_request(host, "/api/v1/tema/library/access", "", cookie, cookie_count, token_string);
+                send_to_server(sockfd, message);
+                
+                response = receive_from_server(sockfd);
+                token = json::parse(response.substr(response.find("{\"token"), LINELEN));
+                token_string = token["token"];
+                cout << token_string;
+                close_connection(sockfd);
+                break;
+                }
+            case 4:
+                {
+                    // get_books
+                sockfd = open_connection(host, port, AF_INET, SOCK_STREAM, 0);
+                message = compute_get_request(host, "/api/v1/tema/library/books", "", cookie, cookie_count, token_string);
+                send_to_server(sockfd, message);
+                
+                response = receive_from_server(sockfd);
+                cout << response;
+                
+                close_connection(sockfd);
+                break;
+                }    
             default:
                 cout << "lol";
                 break;

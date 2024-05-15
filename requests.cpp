@@ -14,45 +14,49 @@ using json = nlohmann::json;
 
 using namespace std;
 
-char *compute_get_request(char *host, char *url, char *query_params,
-                            char **cookies, int cookies_count)
+string compute_get_request(char *host, string url, string query_params,
+                            string cookie, int cookies_count, string token)
 {
-    char *message = (char*) calloc(BUFLEN, sizeof(char));
-    char *line =  (char*) calloc(LINELEN, sizeof(char));
+    std::string message;
+    char *line = (char*) calloc(LINELEN, sizeof(char));
 
     // Step 1: write the method name, URL, request params (if any) and protocol type
-    if (query_params != NULL) {
-        sprintf(line, "GET %s?%s HTTP/1.1", url, query_params);
+    if (!query_params.empty()) {
+        sprintf(line, "GET %s?%s HTTP/1.1", url.data(), query_params.data());
     } else {
-        sprintf(line, "GET %s HTTP/1.1", url);
+        sprintf(line, "GET %s HTTP/1.1", url.data());
     }
 
-    compute_message(message, line);
+    message = compute_message(message, line);
 
     // Step 2: add the host
     sprintf(line, "Host: %s", host);
-    compute_message(message, line);
+    message = compute_message(message, line);
 
     // Step 3 (optional): add headers and/or cookies, according to the protocol format
-    if (cookies != NULL) {
+    if (cookies_count > 0) {
         for (int i = 0; i < cookies_count; i++) {
-            sprintf(line, "Cookie: %s", cookies[i]);
-            compute_message(message, line);
+            sprintf(line, "Cookie: %s", cookie.data());
+            message = compute_message(message, line);
         }
+    }
+    if (!token.empty()) {
+        sprintf(line, "Authorization: Bearer %s", token.data());
+        message = compute_message(message, line);
     }
 
     // Step 4: add final new line
-    compute_message(message, "");
+    message = compute_message(message, "");
+    cout << message;
+    free(line);
     return message;
 }
 
 std::string compute_post_request(char *host, std::string url, std::string content_type, std::string body_data,
-                            char **cookies, int cookies_count)
+                            string cookie, int cookies_count)
 {
-    // char *message = (char*) calloc(BUFLEN, sizeof(char));
     std::string message;
     char *line = (char*) calloc(LINELEN, sizeof(char));
-    char *body_data_buffer = (char*) calloc(LINELEN, sizeof(char));
     int content_length = 0;
     // Step 1: write the method name, URL and protocol type
     sprintf(line, "POST %s HTTP/1.1", url.data());
@@ -69,10 +73,10 @@ std::string compute_post_request(char *host, std::string url, std::string conten
     sprintf(line, "Content-Length: %d", content_length);
     message = compute_message(message, line);
     // Step 4 (optional): add cookies
-    if (cookies != NULL) {
+    if (cookies_count > 0) {
        for (int i = 0; i < cookies_count; i++) {
-            sprintf(line, "Cookie: %s", cookies[i]);
-            compute_message(message, line);
+            sprintf(line, "Cookie: %s", cookie.data());
+            message = compute_message(message, line);
         }
     }
     // Step 5: add new line at end of header
