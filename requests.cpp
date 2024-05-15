@@ -22,7 +22,7 @@ string compute_get_request(char *host, string url, string query_params,
 
     // Step 1: write the method name, URL, request params (if any) and protocol type
     if (!query_params.empty()) {
-        sprintf(line, "GET %s?%s HTTP/1.1", url.data(), query_params.data());
+        sprintf(line, "GET %s:%s HTTP/1.1", url.data(), query_params.data());
     } else {
         sprintf(line, "GET %s HTTP/1.1", url.data());
     }
@@ -37,7 +37,7 @@ string compute_get_request(char *host, string url, string query_params,
     if (cookies_count > 0) {
         for (int i = 0; i < cookies_count; i++) {
             sprintf(line, "Cookie: %s", cookie.data());
-            message = compute_message(message, line);
+            message.append(line);
         }
     }
     if (!token.empty()) {
@@ -48,6 +48,7 @@ string compute_get_request(char *host, string url, string query_params,
     // Step 4: add final new line
     message = compute_message(message, "");
     cout << message;
+    
     free(line);
     return message;
 }

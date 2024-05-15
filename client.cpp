@@ -33,6 +33,7 @@ int main(int argc, char *argv[])
     umap["login"] = 2;
     umap["enter_library"] = 3;
     umap["get_books"] = 4;
+    umap["get_book"] = 5;
     int start;
     int end;
     string linie;
@@ -115,17 +116,35 @@ int main(int argc, char *argv[])
                 }
             case 4:
                 {
-                    // get_books
+                    // get_book
                 sockfd = open_connection(host, port, AF_INET, SOCK_STREAM, 0);
                 message = compute_get_request(host, "/api/v1/tema/library/books", "", cookie, cookie_count, token_string);
                 send_to_server(sockfd, message);
                 
                 response = receive_from_server(sockfd);
-                cout << response;
-                
+                // cout << response;
+                // cout << response.find("[");
+                cout << response.substr(response.find("["), LINELEN);
                 close_connection(sockfd);
                 break;
-                }    
+                }
+            case 5:
+                {
+                    // get_books
+                sockfd = open_connection(host, port, AF_INET, SOCK_STREAM, 0);
+                cout << "id=";
+                string id;
+                getline(cin, id);
+                message = compute_get_request(host, "/api/v1/tema/library/books/", id, cookie, cookie_count, token_string);
+                send_to_server(sockfd, message);
+                
+                response = receive_from_server(sockfd);
+                cout << response;
+                // cout << response.find("[");
+                // cout << response.substr(response.find("["), LINELEN);
+                close_connection(sockfd);
+                break;
+                }      
             default:
                 cout << "lol";
                 break;
